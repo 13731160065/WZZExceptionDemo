@@ -11,7 +11,7 @@
 @class WZZExceptionManager;
 
 //数据库路径
-#define WZZExceptionManager_FMDBDir [NSHomeDirectory() stringByAppendingString:@"/WZZExceptionManager"]
+#define WZZExceptionManager_FMDBDir [NSHomeDirectory() stringByAppendingString:@"/Documents/WZZExceptionManager"]
 //异常表
 #define WZZExceptionManager_excTableName @"excTable"
 
