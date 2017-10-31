@@ -35,11 +35,17 @@ void UncaughtExceptionHandler(NSException * exception) {
     //插入数据
     WZZExceptionManager * man = [WZZExceptionManager shareInstance];
     
-    NSString * version = [NSString stringWithFormat:@"%@", man->_version];
-    NSDictionary * extDic = @{@"appversion":version};
+    if (!man->_version) {
+        NSString * versionInfo = [WZZExceptionManager objectToJson:[[NSBundle mainBundle] infoDictionary]];
+        man->_version = versionInfo;
+    }
+    
+    NSString * version = man->_version?man->_version:@"no ext";
+    id extObj = [WZZExceptionManager jsonToObject:version];
+    NSDictionary * extDic = @{@"appversion":extObj?extObj:version};
     NSString * extJsonStr = [NSString stringWithFormat:@"%@", [WZZExceptionManager objectToJson:extDic]];
     
-    [man->fmdb executeUpdate:[NSString stringWithFormat:@"insert into %@(etime, ename, ereason, estack, euser, ephone, eextern) values(?, ?, ?, ?, ?, ?, ?)", WZZExceptionManager_excTableName], [NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name?name:@"no name", reason?reason:@"no reason", callStackStr?callStackStr:@"no call stack", man->_uid?man->_uid:@"no user id", man->_phone?man->_phone:@"no phone", extJsonStr?extJsonStr:@"no ext"];
+    [man->fmdb executeUpdate:[NSString stringWithFormat:@"insert into %@(etime, ename, ereason, estack, euser, ephone, eextern) values(?, ?, ?, ?, ?, ?, ?)", WZZExceptionManager_excTableName], [NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name?name:@"no name", reason?reason:@"no reason", callStackStr?callStackStr:@"no call stack", man->_uid?man->_uid:@"no user id", man->_phone?man->_phone:@"no phone", extJsonStr];
     if (man->_getExceptionBlock) {
         man->_getExceptionBlock([NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name, reason, callStackStr, callStackArr);
     }

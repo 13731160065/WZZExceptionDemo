@@ -567,6 +567,7 @@
 				C5E77F781F78AB1900FC3CDF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C5E77F791F78AB1900FC3CDF /* Build configuration list for PBXNativeTarget "WZZExcptionDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -575,6 +576,7 @@
 				C5E77F7B1F78AB1900FC3CDF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C5E77F7C1F78AB1900FC3CDF /* Build configuration list for PBXNativeTarget "WZZExcptionDemoUITests" */ = {
 			isa = XCConfigurationList;
@@ -583,6 +585,7 @@
 				C5E77F7E1F78AB1900FC3CDF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
