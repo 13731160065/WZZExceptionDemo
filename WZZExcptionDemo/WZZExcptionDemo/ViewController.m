@@ -17,7 +17,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+#if 0
+    id str = @"";
+    str[0];
+#endif
     WZZExceptionManager * man = [WZZExceptionManager shareInstance];
     NSArray * arr = [man loadExcData];
     NSLog(@"log1:\n%@", arr);

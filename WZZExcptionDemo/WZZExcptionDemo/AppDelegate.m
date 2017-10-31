@@ -21,6 +21,9 @@
     //初始化
     [[WZZExceptionManager shareInstance] setupManager];
     [[WZZExceptionManager shareInstance] setUserId:@"88888888" phone:@"13731160066"];
+    NSString * versionInfo = [WZZExceptionManager objectToJson:[[NSBundle mainBundle] infoDictionary]];
+    NSLog(@"%@", versionInfo);
+    [[WZZExceptionManager shareInstance] setVersion:versionInfo];
     
     return YES;
 }

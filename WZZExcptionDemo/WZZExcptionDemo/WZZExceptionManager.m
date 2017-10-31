@@ -34,7 +34,12 @@ void UncaughtExceptionHandler(NSException * exception) {
     
     //插入数据
     WZZExceptionManager * man = [WZZExceptionManager shareInstance];
-    [man->fmdb executeUpdate:[NSString stringWithFormat:@"insert into %@(etime, ename, ereason, estack, euser, ephone, eextern) values(?, ?, ?, ?, ?, ?, ?)", WZZExceptionManager_excTableName], [NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name?name:@"no name", reason?reason:@"no reason", callStackStr?callStackStr:@"no call stack", man->_uid?man->_uid:@"no user id", man->_phone?man->_phone:@"no phone", @""];
+    
+    NSString * version = [NSString stringWithFormat:@"%@", man->_version];
+    NSDictionary * extDic = @{@"appversion":version};
+    NSString * extJsonStr = [NSString stringWithFormat:@"%@", [WZZExceptionManager objectToJson:extDic]];
+    
+    [man->fmdb executeUpdate:[NSString stringWithFormat:@"insert into %@(etime, ename, ereason, estack, euser, ephone, eextern) values(?, ?, ?, ?, ?, ?, ?)", WZZExceptionManager_excTableName], [NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name?name:@"no name", reason?reason:@"no reason", callStackStr?callStackStr:@"no call stack", man->_uid?man->_uid:@"no user id", man->_phone?man->_phone:@"no phone", extJsonStr?extJsonStr:@"no ext"];
     if (man->_getExceptionBlock) {
         man->_getExceptionBlock([NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name, reason, callStackStr, callStackArr);
     }
@@ -88,6 +93,11 @@ static WZZExceptionManager * wzzExceptionManager;
     _phone = phone;
 }
 
+//设置版本号
+- (void)setVersion:(NSString *)version {
+    _version = version;
+}
+
 //异常回调
 - (void)getExceptionBlock:(void (^)(NSString *, NSString *, NSString *, NSString *, NSArray *))aBlock {
     _getExceptionBlock = aBlock;
@@ -123,6 +133,36 @@ static WZZExceptionManager * wzzExceptionManager;
         [arr addObject:dic];
     }
     return arr;
+}
+
+#pragma mark - 辅助方法
+//json字符串转对象
++ (id)jsonToObject:(NSString *)jsonString {
+    if (jsonString == nil) {
+        return nil;
+    }
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *err;
+    id object = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&err];
+    if(err) {
+        NSLog(@"json解析失败：%@",err);
+        return nil;
+    }
+    return object;
+}
+
+//对象转json字符串
++ (NSString *)objectToJson:(id)object {
+    if (object == nil) {
+        return nil;
+    }
+    NSError * err = nil;
+    NSData * data = [NSJSONSerialization dataWithJSONObject:object options:0 error:&err];
+    if(err) {
+        NSLog(@"json解析失败：%@",err);
+        return nil;
+    }
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
 @end

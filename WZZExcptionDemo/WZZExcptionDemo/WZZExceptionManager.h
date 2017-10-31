@@ -17,6 +17,7 @@
     void (^_getExceptionBlock)(NSString *, NSString *, NSString *, NSString *, NSArray *);//异常回调
     NSString * _uid;//用户id
     NSString * _phone;//手机
+    NSString * _version;//app版本
 }
 
 /**
@@ -34,6 +35,11 @@
  */
 - (void)setUserId:(NSString *)uid
             phone:(NSString *)phone;
+
+/**
+ 设置版本号
+ */
+- (void)setVersion:(NSString *)version;
 
 /**
  异常回调
@@ -55,5 +61,15 @@
  获取异常数据
  */
 - (NSArray *)loadExcData;
+
+/**
+ json转对象
+ */
++ (id)jsonToObject:(NSString *)jsonString;
+
+/**
+ 对象转json字符串
+ */
++ (NSString *)objectToJson:(id)object;
 
 @end
