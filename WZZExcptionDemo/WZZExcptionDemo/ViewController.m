@@ -17,7 +17,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-#if 1
+#if 0
     id str = @"";
     str[0];
 #endif

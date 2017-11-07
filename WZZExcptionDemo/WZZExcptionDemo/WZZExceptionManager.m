@@ -17,38 +17,9 @@
 
 //崩溃时的回调函数
 void UncaughtExceptionHandler(NSException * exception) {
-    //调用堆栈
-    NSArray * callStackArr = [exception callStackSymbols];
-    //调用堆栈字符串
-    NSString * callStackStr = @"CallStackSymbols:";
-    for (int i = 0; i < callStackArr.count; i++) {
-        NSString * str = callStackArr[i];
-        callStackStr = [callStackStr stringByAppendingFormat:@"\n%@", str];
-    }
-    //崩溃原因
-    NSString * reason = [exception reason];//崩溃的原因，可以有崩溃的原因(数组越界,字典nil,调用未知方法...)崩溃的控制器以及方法
-    //崩溃名字
-    NSString * name = [exception name];
-    //崩溃时间
-    NSTimeInterval dateInteger = [[NSDate date] timeIntervalSince1970];
-    
     //插入数据
     WZZExceptionManager * man = [WZZExceptionManager shareInstance];
-    
-    if (!man->_version) {
-        NSString * versionInfo = [WZZExceptionManager objectToJson:[[NSBundle mainBundle] infoDictionary]];
-        man->_version = versionInfo;
-    }
-    
-    NSString * version = man->_version?man->_version:@"no ext";
-    id extObj = [WZZExceptionManager jsonToObject:version];
-    NSDictionary * extDic = @{@"appversion":extObj?extObj:version};
-    NSString * extJsonStr = [NSString stringWithFormat:@"%@", [WZZExceptionManager objectToJson:extDic]];
-    
-    [man->fmdb executeUpdate:[NSString stringWithFormat:@"insert into %@(etime, ename, ereason, estack, euser, ephone, eextern) values(?, ?, ?, ?, ?, ?, ?)", WZZExceptionManager_excTableName], [NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name?name:@"no name", reason?reason:@"no reason", callStackStr?callStackStr:@"no call stack", man->_uid?man->_uid:@"no user id", man->_phone?man->_phone:@"no phone", extJsonStr];
-    if (man->_getExceptionBlock) {
-        man->_getExceptionBlock([NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name, reason, callStackStr, callStackArr);
-    }
+    [man saveException:exception];
 }
 
 static WZZExceptionManager * wzzExceptionManager;
@@ -105,8 +76,40 @@ static WZZExceptionManager * wzzExceptionManager;
 }
 
 //异常回调
-- (void)getExceptionBlock:(void (^)(NSString *, NSString *, NSString *, NSString *, NSArray *))aBlock {
+- (void)getExceptionBlock:(void (^)(NSString *, NSString *, NSString *, NSString *, NSArray *, NSException *))aBlock {
     _getExceptionBlock = aBlock;
+}
+
+- (void)saveException:(NSException *)exception {
+    //调用堆栈
+    NSArray * callStackArr = [exception callStackSymbols];
+    //调用堆栈字符串
+    NSString * callStackStr = @"CallStackSymbols:";
+    for (int i = 0; i < callStackArr.count; i++) {
+        NSString * str = callStackArr[i];
+        callStackStr = [callStackStr stringByAppendingFormat:@"\n%@", str];
+    }
+    //崩溃原因
+    NSString * reason = [exception reason];//崩溃的原因，可以有崩溃的原因(数组越界,字典nil,调用未知方法...)崩溃的控制器以及方法
+    //崩溃名字
+    NSString * name = [exception name];
+    //崩溃时间
+    NSTimeInterval dateInteger = [[NSDate date] timeIntervalSince1970];
+    
+    if (!_version) {
+        NSString * versionInfo = [WZZExceptionManager objectToJson:[[NSBundle mainBundle] infoDictionary]];
+        _version = versionInfo;
+    }
+    
+    NSString * version = _version?_version:@"no ext";
+    id extObj = [WZZExceptionManager jsonToObject:version];
+    NSDictionary * extDic = @{@"appversion":extObj?extObj:version};
+    NSString * extJsonStr = [NSString stringWithFormat:@"%@", [WZZExceptionManager objectToJson:extDic]];
+    
+    [self->fmdb executeUpdate:[NSString stringWithFormat:@"insert into %@(etime, ename, ereason, estack, euser, ephone, eextern) values(?, ?, ?, ?, ?, ?, ?)", WZZExceptionManager_excTableName], [NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name?name:@"no name", reason?reason:@"no reason", callStackStr?callStackStr:@"no call stack", _uid?_uid:@"no user id", _phone?_phone:@"no phone", extJsonStr];
+    if (_getExceptionBlock) {
+        _getExceptionBlock([NSString stringWithFormat:@"%ld", (NSInteger)dateInteger], name, reason, callStackStr, callStackArr, exception);
+    }
 }
 
 //清除异常表数据

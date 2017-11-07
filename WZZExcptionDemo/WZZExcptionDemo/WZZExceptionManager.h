@@ -14,7 +14,7 @@
     @public
     //一般用不到，防止滥用所以写在这里
     FMDatabase * fmdb;//数据库
-    void (^_getExceptionBlock)(NSString *, NSString *, NSString *, NSString *, NSArray *);//异常回调
+    void (^_getExceptionBlock)(NSString *, NSString *, NSString *, NSString *, NSArray *, NSException *);//异常回调
     NSString * _uid;//用户id
     NSString * _phone;//手机
     NSString * _version;//app版本
@@ -45,7 +45,12 @@
  异常回调
  一般不用实现
  */
-- (void)getExceptionBlock:(void(^)(NSString * etime, NSString * ename, NSString * ereason, NSString * estack, NSArray * callStackArray))aBlock;
+- (void)getExceptionBlock:(void(^)(NSString * etime, NSString * ename, NSString * ereason, NSString * estack, NSArray * callStackArray, NSException * exception))aBlock;
+
+/**
+ 手动保存异常
+ */
+- (void)saveException:(NSException *)exception;
 
 /**
  清除异常表数据
