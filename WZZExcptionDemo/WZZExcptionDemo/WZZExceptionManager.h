@@ -7,18 +7,24 @@
 //
 
 #import <Foundation/Foundation.h>
-@class FMDatabase;
+@class WZZExceptionModel;
 
 @interface WZZExceptionManager : NSObject
-{
-    @public
-    //一般用不到，防止滥用所以写在这里
-    FMDatabase * fmdb;//数据库
-    void (^_getExceptionBlock)(NSString *, NSString *, NSString *, NSString *, NSArray *, NSException *);//异常回调
-    NSString * _uid;//用户id
-    NSString * _phone;//手机
-    NSString * _version;//app版本
-}
+
+/**
+ 异常数组
+ */
+@property (nonatomic, strong) NSMutableArray <WZZExceptionModel *>* expArr;
+
+/**
+ 异常回调
+ */
+@property (nonatomic, strong) void(^getExceptionBlock)(WZZExceptionModel * model, NSException * orgException);
+
+/**
+ 扩展字段
+ */
+@property (nonatomic, strong) NSString * extStr;
 
 /**
  单例
@@ -31,23 +37,6 @@
 - (void)setupManager;
 
 /**
- 配置用户id和手机号
- */
-- (void)setUserId:(NSString *)uid
-            phone:(NSString *)phone;
-
-/**
- 设置版本号
- */
-- (void)setVersion:(NSString *)version;
-
-/**
- 异常回调
- 一般不用实现
- */
-- (void)getExceptionBlock:(void(^)(NSString * etime, NSString * ename, NSString * ereason, NSString * estack, NSArray * callStackArray, NSException * exception))aBlock;
-
-/**
  手动保存异常
  */
 - (void)saveException:(NSException *)exception;
@@ -58,23 +47,82 @@
 - (void)cleanExcTableData;
 
 /**
- 删除某条数据
+ 删除数据
+
+ @param eid 异常id
  */
 - (void)removeExcDataWithId:(NSString *)eid;
 
 /**
+ 删除数据
+
+ @param index 第几个
+ */
+- (void)removeExcDataWithIndex:(NSInteger)index;
+
+/**
  获取异常数据
  */
-- (NSArray *)loadExcData;
+- (NSArray <WZZExceptionModel *>*)loadExcData;
+
+@end
+
+@interface WZZExceptionModel :NSObject<NSCoding>
 
 /**
- json转对象
+ id
  */
-+ (id)jsonToObject:(NSString *)jsonString;
+@property (nonatomic, strong) NSString * eid;
 
 /**
- 对象转json字符串
+ 时间
  */
-+ (NSString *)objectToJson:(id)object;
+@property (nonatomic, strong) NSString * time;
+
+/**
+ 名字
+ */
+@property (nonatomic, strong) NSString * name;
+
+/**
+ 原因
+ */
+@property (nonatomic, strong) NSString * reason;
+
+/**
+ 堆栈
+ */
+@property (nonatomic, strong) NSString * stack;
+
+/**
+ 堆栈json
+ */
+@property (nonatomic, strong) NSString * stackJson;
+
+/**
+ 扩展字段
+ */
+@property (nonatomic, strong) NSString * externStr;
+
+/**
+ 转换成字典
+
+ @return 字典
+ */
+- (NSDictionary *)toDic;
+
+/**
+ 转换成json
+
+ @return json
+ */
+- (NSString *)toJson;
+
+/**
+ 转换自己为data
+
+ @return 转换自己为data
+ */
+- (NSData *)archiveSelf;
 
 @end

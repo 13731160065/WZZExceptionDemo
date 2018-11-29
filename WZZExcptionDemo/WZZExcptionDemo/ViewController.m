@@ -22,10 +22,10 @@
     str[0];
 #endif
     WZZExceptionManager * man = [WZZExceptionManager shareInstance];
-    NSArray * arr = [man loadExcData];
+    NSArray <WZZExceptionModel *>* arr = [man loadExcData];
     NSLog(@"log1:\n%@", arr);
     if (arr.count) {
-        [man removeExcDataWithId:arr[0]?arr[0][@"eid"]:nil];
+        [man removeExcDataWithId:arr.firstObject.eid];
     }
     NSLog(@"log2:\n%@", [man loadExcData]);
 }
